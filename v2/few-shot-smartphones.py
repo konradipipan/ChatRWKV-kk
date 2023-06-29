@@ -11,7 +11,7 @@ import jsonlines
 current_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(f'{current_path}/../rwkv_pip_package/src')
 try:
-    os.environ["CUDA_VISIBLE_DEVICES"] = sys.argv[1]
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1,3"
 except:
     pass
 import numpy as np
@@ -30,13 +30,14 @@ from rwkv.model import RWKV
 from rwkv.utils import PIPELINE, PIPELINE_ARGS
 
 SAVE_DIR = "/home/kk/results/raven"
+os.makedirs(SAVE_DIR, exist_ok=True)
 
 models_dir = 'home/kk/MODELS/raven'
 model_names = [os.path.join(models_dir, i) for i in os.listdir(models_dir)]
 
 # training examples for hte prompt
 training_prompts = []
-with jsonlines.open('/home/konrad/Repos/ChatRWKV-kk/training_data/smartphones_training_sample_fuzzy.jsonl') as reader:
+with jsonlines.open('/home/kk/ChatRWKV-kk/training_data/smartphones_training_sample_fuzzy.jsonl') as reader:
     for obj in reader:
         training_prompts.append(obj)
 
@@ -46,7 +47,7 @@ for i in training_prompts:
                               'taxonomy': i['completion']})
 
 # zero-shot dataset for test
-smartphone_test_data = '/home/konrad/Repos/ChatRWKV-kk/test_data/smartfony_test.xlsx'
+smartphone_test_data = '/home/kk/ChatRWKV-kk/test_data/smartfony_test.xlsx'
 test_smartphones_source = output_rows(smartphone_test_data, "Sheet1")
 test_smartphones = produce_dd(test_smartphones_source)
 
