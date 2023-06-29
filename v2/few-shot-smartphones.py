@@ -31,7 +31,7 @@ from rwkv.utils import PIPELINE, PIPELINE_ARGS
 SAVE_DIR = "/home/kk/results/raven"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
-models_dir = 'home/kk/MODELS/raven'
+models_dir = '/home/kk/MODELS/raven'
 model_names = [os.path.join(models_dir, i) for i in os.listdir(models_dir)]
 
 def output_rows(xlsx_path: str, sh_name: str) -> list[dict]:
