@@ -1,8 +1,7 @@
 ########################################################################################################
 # The RWKV Language Model - https://github.com/BlinkDL/RWKV-LM
 ########################################################################################################
-from data_processing.open_excel import output_rows
-from data_processing.datasetting import produce_dd
+import pandas as pd
 import re
 from tqdm import tqdm
 import os, sys, types, json, math, time, random
@@ -34,6 +33,43 @@ os.makedirs(SAVE_DIR, exist_ok=True)
 
 models_dir = 'home/kk/MODELS/raven'
 model_names = [os.path.join(models_dir, i) for i in os.listdir(models_dir)]
+
+def output_rows(xlsx_path: str, sh_name: str) -> list[dict]:
+    """Wczytuje plik xlsx i zwraca listę słowników (jeden wiersz -> jeden słownik)"""
+    xlsx_df = pd.read_excel(xlsx_path, sheet_name=sh_name)
+    xlsx_rows = xlsx_df.to_json(orient='records')
+    xlsx_rows = xlsx_rows.lstrip('[').rstrip(']').split('{')
+    xlsx_rows = ['{' + i for i in xlsx_rows[1:]]
+    xlsx_rows = [i.replace('null', 'None') for i in xlsx_rows]
+    xlsx_rows = [eval(i.rstrip(',').replace("true", "'true'").replace("false", "'false'")) for i in xlsx_rows]
+    return xlsx_rows
+
+def produce_dd(phones_data: list[dict]) ->list[dict]:
+
+    # Prepare dict dataset
+    dataset_dicts = []
+    for phd in phones_data:
+        phd['nazwasrodka'] = phd['nazwasrodka'].replace('\/', '').replace('\\/', '').replace('/', '')
+        tokens = phd['nazwasrodka'].split(' ')
+        new_dict = {'nazwasrodka' : phd['nazwasrodka'],
+                    'taxonomy' : ''}
+        if phd['T0'] and phd['T0'] in tokens:
+            new_dict['taxonomy'] += phd['T0']
+            new_dict['taxonomy'] += ' '
+
+        if phd['T1'] and phd['T1'] in tokens:
+            new_dict['taxonomy'] += phd['T1']
+            new_dict['taxonomy'] += ' '
+        for i in [2, 3, 4]:
+            if phd[f'T{i}'] and phd[f'T{i}'] in tokens:
+                new_dict['taxonomy'] += phd[f'T{i}']
+                new_dict['taxonomy'] += ' '
+        new_dict['taxonomy'] = new_dict['taxonomy'].rstrip(' ')
+        dataset_dicts.append(new_dict)
+    return dataset_dicts
+
+
+
 
 # training examples for hte prompt
 training_prompts = []
