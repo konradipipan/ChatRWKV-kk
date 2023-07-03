@@ -171,4 +171,4 @@ for MODEL_NAME in model_names:
         results.append(output)
 
     with open(os.path.join(SAVE_DIR, os.path.basename(MODEL_NAME) + '.txt'), 'w') as jsntxt:
-        json.dumps(jsntxt, results, indent=3)
+        json.dump(jsntxt, results, indent=3)
